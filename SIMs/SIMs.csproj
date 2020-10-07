@@ -160,5 +160,17 @@
   <ItemGroup>
     <None Include="Resources\GPSDataLogo1.png" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\378.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ajax-loader-ejemplo.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ajax-loader %281%29.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\GPSDATA.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

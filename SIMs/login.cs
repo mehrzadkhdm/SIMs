@@ -28,7 +28,7 @@ namespace SIMs
 
         private async void button1_Click(object sender, EventArgs e)
         {
-            //string source = "Mexico123!";
+
             
             string hash = "";
             using (SHA1 sha1Hash = SHA1.Create())
@@ -53,16 +53,10 @@ namespace SIMs
                 new
                 {
                     username = textBoxUser.Text,
-                    //username = "neidy.mtto@gmail.com",
                     password = hash,
                 }); ; // AddJsonBody serializes the object automatically
-            // "f5562957f36d47b1cb36e8561178ee472e8ebb21"
-            //request.AddJsonBody(
-            //    new
-            //    {
-            //        username = "mehrzadkhdm@gmail.com",
-            //        password = hash // x5Va5fVNv!Ptvut
-            //    }); // AddJsonBody serializes the object automatically
+            // ""
+            
 
             IRestResponse response = await client.ExecuteAsync(request);
             var content = response.Content;

@@ -38,10 +38,11 @@ namespace SIMs
                 byte[] hashBytes = sha1Hash.ComputeHash(sourceBytes);
                 hash = BitConverter.ToString(hashBytes).Replace("-", String.Empty).ToLower();
 
-                //Console.WriteLine("The SHA1 hash of " + source + " is: " + hash);
             }
-            var client = new RestClient("https://cdn.emnify.net");
-            client.Timeout = -1;
+            var client = new RestClient("https://cdn.emnify.net")
+            {
+                Timeout = -1
+            };
             var request = new RestRequest("api/v1/authenticate", DataFormat.Json);
             request.Method = Method.POST;
             //request.AddHeader("Content-type", "application/json");
@@ -55,6 +56,7 @@ namespace SIMs
                     //username = "neidy.mtto@gmail.com",
                     password = hash,
                 }); ; // AddJsonBody serializes the object automatically
+            // "f5562957f36d47b1cb36e8561178ee472e8ebb21"
             //request.AddJsonBody(
             //    new
             //    {
@@ -68,10 +70,10 @@ namespace SIMs
             var json = JsonConvert.DeserializeObject<JObject>(content);
             string token = json["auth_token"].ToString();
 
-            this.Hide();
-            this.Tag = token;
+            Hide();
+            Tag = token;
             Form1 myForm = new Form1(this);
-            myForm.Closed += (s, args) => this.Close();
+            myForm.Closed += (s, args) => Close();
             myForm.Show();
         }
 

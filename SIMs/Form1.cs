@@ -23,15 +23,17 @@ namespace SIMs
     {
         public string token = "";
         //public List<string> serviceProfiles = new List<string>();
-        public List<endpointResponse> endPoints = new List<endpointResponse>();
-        public List<serviceProfileResponse> serviceProfiles = new List<serviceProfileResponse>();
-        public Dictionary<int, string> idDict = new Dictionary<int, string>();
+        public List<endpointResponse> endPoints = new();
+        public List<serviceProfileResponse> serviceProfiles = new();
+        public Dictionary<int, string> idDict = new();
         public string newTime = "00:00:00";
         public Form loginForm;
-        public RestClient client = new RestClient("https://cdn.emnify.net");
-        public List<simResponse> sims = new List<simResponse>();
+        public RestClient client = new("https://cdn.emnify.net");
+        public List<simResponse> sims = new();
         public string cs = @"server=rastreo911.com;userid=simsmx;password=Mexico2k20!!;database=em_sims";
-        List<dataInfo> dataInfos = new List<dataInfo>();
+        List<dataInfo> dataInfos = new();
+        public DataGridViewCellStyle disabledSIMCellStyle = new ();
+        
         public Form1(Form form)
         {
             InitializeComponent();
@@ -40,8 +42,9 @@ namespace SIMs
 
         private async void Form1_LoadAsync(object sender, EventArgs e)
         {
-            this.comboBox1.SelectedIndexChanged += new System.EventHandler(async (sc, ev) => await this.comboBox1_SelectedIndexChanged(sc, ev));
-            this.buttonOk.Click += new System.EventHandler(async (sc, ev) => await this.buttonOk_Click(sc, ev));
+            comboBox1.SelectedIndexChanged += new EventHandler(async (sc, ev) => await comboBox1_SelectedIndexChanged(sc, ev));
+            buttonOk.Click += new EventHandler(async (sc, ev) => await buttonOk_Click(sc, ev));
+            disabledSIMCellStyle.ForeColor = Color.Red;
             //string source = "x5Va5fVNv!Ptvut";
             //source = "Mexico123!";
             //string hash = "";
@@ -55,8 +58,10 @@ namespace SIMs
             //    //Console.WriteLine("The SHA1 hash of " + source + " is: " + hash);
             //}
 
-            client = new RestClient("https://cdn.emnify.net");
-            client.Timeout = -1;
+            client = new RestClient("https://cdn.emnify.net")
+            {
+                Timeout = -1
+            };
             token = loginForm.Tag.ToString();
 
             //token = json["auth_token"].ToString();
@@ -70,15 +75,52 @@ namespace SIMs
             //  Read endpoints information
             //
             Cursor = Cursors.WaitCursor;
-            RestRequest request = new RestRequest("api/v1/endpoint");
-            request.Method = Method.GET;
+            // x-count-per-page: 500 
+            // x-current-page: 3 
+            // x-total-count: 1092
+            // x-total-pages: 3 
+            // https://cdn.emnify.net/api/v1/endpoint?page=3&per_page=500
+            //
+            int itemsPerPage = 1000;
+            int pages = 1;
+            //RestRequest request = new RestRequest(string.Format("api/v1/endpoint?page={0}&per_page={1}", 1, itemsPerPage));
+            RestRequest request = new RestRequest($"api/v1/endpoint?page=1&per_page={itemsPerPage}")
+            {
+                Method = Method.GET
+            };
             //request.AddHeader("Content-type", "application/json");
             //request.RequestFormat = DataFormat.Json;
             request.AddHeader("Authorization", "Bearer " + token);
             request.AddHeader("accept", "application/json, text/plain, */*");
             IRestResponse response = await client.ExecuteAsync(request);
+
             string content = response.Content;
             endPoints = JsonConvert.DeserializeObject<List<endpointResponse>>(content);
+            //
+            //int kk = int.Parse(response.Headers.Where(r => r.Name.ToLower() == "x-total-pages").Select(r => r.Value.ToString()).FirstOrDefault());
+
+            foreach (var p in response.Headers)
+            {
+                if (p.Name.ToLower() == "x-total-pages")
+                {
+                    pages = int.Parse(p.Value.ToString());
+                }
+            }
+            for (int page = 2; page <= pages; page++)
+            {
+                //request = new RestRequest(string.Format("api/v1/endpoint?page={0}&per_page={1}", page, itemsPerPage));
+                request = new RestRequest($"api/v1/endpoint?page={page}&per_page={itemsPerPage}")
+                {
+                    Method = Method.GET
+                };
+                //request.AddHeader("Content-type", "application/json");
+                //request.RequestFormat = DataFormat.Json;
+                request.AddHeader("Authorization", "Bearer " + token);
+                request.AddHeader("accept", "application/json, text/plain, */*");
+                response = await client.ExecuteAsync(request);
+                content = response.Content;
+                endPoints.AddRange(JsonConvert.DeserializeObject<List<endpointResponse>>(content));
+            }
             //endpo = endPoints.Select(s => s.service_profile.name).Distinct().ToList();
 
 
@@ -86,28 +128,56 @@ namespace SIMs
             ;
             //  Read SIM information
             //
-            request = new RestRequest("api/v1/sim");
-            request.Method = Method.GET;
+            request = new RestRequest($"api/v1/sim?page=1&per_page={itemsPerPage}")
+            {
+                Method = Method.GET
+            };
             request.AddHeader("Authorization", "Bearer " + token);
             request.AddHeader("aacept", "application/json, text/plain, */*");
             response = await client.ExecuteAsync(request);
             content = response.Content;
             sims = JsonConvert.DeserializeObject<List<simResponse>>(content);
+            foreach (var p in response.Headers)
+            {
+                if (p.Name.ToLower() == "x-total-pages")
+                {
+                    pages = int.Parse(p.Value.ToString());
+                }
+            }
+            for (int page = 2; page <= pages; page++)
+            {
+                request = new RestRequest($"api/v1/sim?page={page}&per_page={itemsPerPage}")
+                {
+                    Method = Method.GET
+                };
+                request.AddHeader("Authorization", "Bearer " + token);
+                request.AddHeader("accept", "application/json, text/plain, */*");
+                response = await client.ExecuteAsync(request);
+                content = response.Content;
+                sims.AddRange(JsonConvert.DeserializeObject<List<simResponse>>(content));
+            }
+
+
+
+
             //
             // Read Service Profile
             //
-            request = new RestRequest("api/v1/service_profile");
-            request.Method = Method.GET;
+            request = new RestRequest("api/v1/service_profile")
+            {
+                Method = Method.GET
+            };
             request.AddHeader("Authorization", "Bearer " + token);
             request.AddHeader("aacept", "application/json, text/plain, */*");
             response = await client.ExecuteAsync(request);
             content = response.Content;
             serviceProfiles = JsonConvert.DeserializeObject<List<serviceProfileResponse>>(content);
+
             //
             //
             //  Read database
             //
-            await readDatabase();
+            await ReadDatabase();
             Cursor = Cursors.Default;
             pictureBox2.Visible = false;
 
@@ -116,24 +186,20 @@ namespace SIMs
 
         }
 
-        private async Task readDatabase()
+        private async Task ReadDatabase()
         {
             dataInfos = new List<dataInfo>();
-            using (var con = new MySqlConnection(cs))
+            using var con = new MySqlConnection(cs);
+            con.Open();
+            string sql = "SELECT * FROM em_sims.sims_data";
+            using (var cmd = new MySqlCommand(sql, con))
             {
-                con.Open();
-                string sql = "SELECT * FROM em_sims.sims_data";
-                using (var cmd = new MySqlCommand(sql, con))
-                {
-                    cmd.ExecuteNonQuery();
+                cmd.ExecuteNonQuery();
 
-                    using (MySqlDataReader rdr = cmd.ExecuteReader())
-                    {
+                using MySqlDataReader rdr = (MySqlDataReader)await cmd.ExecuteReaderAsync();
 
-                        while (rdr.Read())
-                            dataInfos.Add(new dataInfo(rdr[3].ToString(), rdr[4].ToString(), DateTime.Parse(rdr[5].ToString())));
-                    }
-                }
+                while (rdr.Read())
+                    dataInfos.Add(new dataInfo(rdr[3].ToString(), rdr[4].ToString(), DateTime.Parse(rdr[5].ToString())));
             }
 
         }
@@ -179,70 +245,90 @@ namespace SIMs
         //        }
         //    }
         //}
-        private async Task updateDataGridView()
+        private async Task updateDataGridView(bool updateSIM)
         {
             dataGridView1.Rows.Clear();
             // update SIM if necessary
             //  Read SIM information
             //
-            // if() { }
-            //RestRequest request;
-            //request = new RestRequest("api/v1/sim");
-            //request.Method = Method.GET;
-            //request.AddHeader("Authorization", "Bearer " + token);
-            //request.AddHeader("aacept", "application/json, text/plain, */*");
-            //IRestResponse response = await client.ExecuteAsync(request);
-            //string content = response.Content;
-            //sims = JsonConvert.DeserializeObject<List<simResponse>>(content);
+            if (updateSIM)
+            {
+                RestRequest request;
+                request = new RestRequest("api/v1/sim");
+                request.Method = Method.GET;
+                request.AddHeader("Authorization", "Bearer " + token);
+                request.AddHeader("aacept", "application/json, text/plain, */*");
+                IRestResponse response = await client.ExecuteAsync(request);
+                string content = response.Content;
+                sims = JsonConvert.DeserializeObject<List<simResponse>>(content);
+            }
             //
             //   
             //
+            if (comboBox1.Text == string.Empty) return;
             int id = serviceProfiles.Where(x => x.name == comboBox1.Text).Select(x => x.id).First();
             List<endpointResponse> points = endPoints.Where(x => x.service_profile.id == id).Select(x => x).ToList();
-            List<string> newSims_Activated = new List<string>();
-            List<string> newSims_Suspended = new List<string>();
+            List<string> newSims_Activated = new();
+            List<string> newSims_Suspended = new();
+            int order = 1;
 
             foreach (endpointResponse endpoint in points)
             {
-                List<DateTime> dates = dataInfos.Where(x => x.ICCID == endpoint.sim.iccid).Select(x => x.expires).ToList();
-                string simStatus = sims.Where(x => x.id == endpoint.sim.id).Select(x => x.status.description).First();
-                string dateString = (dates.Count == 0 ? "" : dates.First().ToString());
-                if (dateString == "")
+                if (endpoint.sim != null)
                 {
-                    if (simStatus == "Activated")
+                    List<DateTime> dates = dataInfos.Where(x => x.ICCID == endpoint.sim.iccid).Select(x => x.expires).ToList();
+                    string simStatus = sims.Where(x => x.id == endpoint.sim.id).Select(x => x.status.description).First();
+                    string dateString = (dates.Count == 0 ? "" : dates.First().ToString());
+                    if (dateString == "")
                     {
-                        dateString = nextDue(1).ToString();
-                        newSims_Activated.Add(endpoint.sim.iccid);
+                        if (simStatus == "Activated")
+                        {
+                            dateString = nextDue(1).ToString();
+                            newSims_Activated.Add(endpoint.sim.iccid);
+                        }
+                        if (simStatus == "Suspended")
+                        {
+                            dateString = nextDue(-1).ToString();
+                            newSims_Suspended.Add(endpoint.sim.iccid);
+                        }
                     }
-                    if (simStatus == "Suspended")
+                    var rowIndex = dataGridView1.Rows.Add();
+                    DataGridViewRow row = dataGridView1.Rows[rowIndex];
+                    //disabledSIMCellStyle.
+                    row.Cells[0].Value = order++;
+                    row.Cells[1].Value = endpoint.name;
+                    row.Cells[2].Value = endpoint.sim.iccid;
+                    row.Cells[3].Value = simStatus;
+                    row.Cells[4].Value = dateString;
+
+                    //dataGridView1.Rows.Add(row);
+                    if(simStatus == "Suspended")
                     {
-                        dateString = nextDue(-1).ToString();
-                        newSims_Suspended.Add(endpoint.sim.iccid);
+                       
                     }
                 }
-
-                dataGridView1.Rows.Add(endpoint.name, endpoint.sim.iccid,
-                    simStatus,
-                    dateString);
+                else
+                {
+                    dataGridView1.Rows.Add(order++, endpoint.name, "",
+                        "No SIM",
+                        "");
+                }
             }
             if (newSims_Activated.Count > 0)
             {
-                using (var con = new MySqlConnection(cs))
+                using var con = new MySqlConnection(cs);
+                con.Open();
+                DateTime dt = nextDue(1);
+                string newTimeDate = string.Format("{0}-{1:00}-{2:00} {3}", dt.Year, dt.Month, dt.Day, newTime);
+                foreach (string iccid in newSims_Activated)
                 {
-                    con.Open();
-                    DateTime dt = nextDue(1);
-                    string newTimeDate = string.Format("{0}-{1:00}-{2:00} {3}", dt.Year, dt.Month, dt.Day, newTime);
-                    foreach (string iccid in newSims_Activated)
+                    //string sql = "INSERT INTO  em_sims.sims_data (), set expires = '" + newTimeDate + "' WHERE iccid IN ('" + ICCIDList + "')";
+                    string sql = string.Format("INSERT INTO  em_sims.sims_data (ICCID, status, expires) VALUES ('{0}', 'Activated', '{1}')", iccid, newTimeDate);
+
+                    using (var cmd = new MySqlCommand(sql, con))
                     {
-                        //string sql = "INSERT INTO  em_sims.sims_data (), set expires = '" + newTimeDate + "' WHERE iccid IN ('" + ICCIDList + "')";
-                        string sql = string.Format("INSERT INTO  em_sims.sims_data (ICCID, status, expires) VALUES ('{0}', 'Activated', '{1}')", iccid, newTimeDate);
-
-                        using (var cmd = new MySqlCommand(sql, con))
-                        {
-                            int numUpdate = cmd.ExecuteNonQuery();
-                        }
+                        int numUpdate = cmd.ExecuteNonQuery();
                     }
-
                 }
             }
             if (newSims_Suspended.Count > 0)
@@ -271,7 +357,7 @@ namespace SIMs
         private async Task comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
 
-            await updateDataGridView();
+            await updateDataGridView(false);
 
 
             //dataGridView1.Rows.Clear();
@@ -412,7 +498,7 @@ namespace SIMs
 
                 // update website
             }
-            await readDatabase();
+            await ReadDatabase();
             //
             //  Update server
             //
@@ -423,8 +509,10 @@ namespace SIMs
             foreach (string sim in activateList)
             {
                 int ac_id = sims.Find(x => x.iccid == sim).id;
-                request = new RestRequest("api/v1/sim");
-                request.Method = Method.PATCH;
+                request = new RestRequest("api/v1/sim")
+                {
+                    Method = Method.PATCH
+                };
                 request.AddHeader("Authorization", "Bearer " + token);
                 request.AddHeader("aacept", "application/json, text/plain, */*");
                 request.RequestFormat = DataFormat.Json;
@@ -443,8 +531,10 @@ namespace SIMs
             {
                 int su_id = sims.Find(x => x.iccid == sim).id;
 
-                request = new RestRequest("api/v1/sim");
-                request.Method = Method.PATCH;
+                request = new RestRequest("api/v1/sim")
+                {
+                    Method = Method.PATCH
+                };
                 request.AddHeader("Authorization", "Bearer " + token);
                 request.AddHeader("aacept", "application/json, text/plain, */*");
                 request.RequestFormat = DataFormat.Json;
@@ -595,7 +685,7 @@ namespace SIMs
         private async void button2_Click(object sender, EventArgs e)
         {
 
-            DialogResult result= MessageBox.Show( "Do you want to check the due data?", "Warning",MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
+            DialogResult result = MessageBox.Show("Do you want to check the due date?", "Warning", MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
             if (result == DialogResult.Cancel) return;
             RestRequest request;
             Cursor = Cursors.WaitCursor;
@@ -644,6 +734,7 @@ namespace SIMs
                     });
                 IRestResponse patchResponse = await client.ExecuteAsync(request);
             }
+            await updateDataGridView(true);
             Cursor = Cursors.Default;
             pictureBox2.Visible = false;
 
@@ -653,6 +744,24 @@ namespace SIMs
         private void button3_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private void DataGridView1_RowPrePaint(object sender, DataGridViewRowPrePaintEventArgs e)
+        {
+            DataGridView grd = sender as DataGridView;
+            if (grd.Rows[e.RowIndex].Cells[3].Value.ToString() == "Activated")
+            {
+                grd.Rows[e.RowIndex].DefaultCellStyle.ForeColor = Color.Black;
+               
+            }
+            else
+            {
+                grd.Rows[e.RowIndex].Cells[1].Style = new DataGridViewCellStyle(disabledSIMCellStyle);
+                grd.Rows[e.RowIndex].Cells[2].Style = new DataGridViewCellStyle(disabledSIMCellStyle);
+                grd.Rows[e.RowIndex].Cells[3].Style = new DataGridViewCellStyle(disabledSIMCellStyle);
+                
+            }
+            
         }
     }
 }

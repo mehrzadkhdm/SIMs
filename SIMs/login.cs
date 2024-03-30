@@ -39,14 +39,25 @@ namespace SIMs
                 hash = BitConverter.ToString(hashBytes).Replace("-", String.Empty).ToLower();
 
             }
-            var client = new RestClient("https://cdn.emnify.net")
+            var client = new RestClient(new RestClientOptions
             {
-                Timeout = -1
+                BaseUrl = new Uri("https://cdn.emnify.net"),
+                MaxTimeout = 10 * 1000,
+            });
+
+            //var client = new RestClient("https://cdn.emnify.net")
+            //{
+            //    new RestClientOptions
+            //    {
+
+            //    }
+            //    Timeout = -1
+            //};
+            var request = new RestRequest("api/v1/authenticate")
+            {
+                Method = Method.Post,
+                RequestFormat = DataFormat.Json
             };
-            var request = new RestRequest("api/v1/authenticate", DataFormat.Json);
-            request.Method = Method.POST;
-            //request.AddHeader("Content-type", "application/json");
-            request.RequestFormat = DataFormat.Json;
             request.AddHeader("authorization", "Bearer null");
             request.AddHeader("aacept", "application/json, text/plain, */*");
             request.AddJsonBody(
@@ -58,7 +69,7 @@ namespace SIMs
             // ""
             
 
-            IRestResponse response = await client.ExecuteAsync(request);
+            var response = await client.ExecuteAsync(request);
             var content = response.Content;
             if (response.StatusCode != System.Net.HttpStatusCode.OK ) return;
             var json = JsonConvert.DeserializeObject<JObject>(content);

@@ -43,7 +43,6 @@
             this.textBoxUser.Name = "textBoxUser";
             this.textBoxUser.Size = new System.Drawing.Size(287, 30);
             this.textBoxUser.TabIndex = 0;
-            this.textBoxUser.Text = "neidy.mtto@gmail.com";
             this.textBoxUser.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             this.textBoxUser.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
             // 
@@ -56,7 +55,6 @@
             this.textBoxPass.PasswordChar = '*';
             this.textBoxPass.Size = new System.Drawing.Size(287, 30);
             this.textBoxPass.TabIndex = 1;
-            this.textBoxPass.Text = "Monterrey1";
             this.textBoxPass.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // button1

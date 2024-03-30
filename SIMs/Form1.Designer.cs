@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             this.comboBox1 = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
@@ -53,6 +54,7 @@
             this.NameColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.ICCIDColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.statusColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.DataUsageColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dueColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.contextMenuAction.SuspendLayout();
@@ -94,13 +96,22 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.dataGridView1.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             this.dataGridView1.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.AllCells;
-            this.dataGridView1.CellBorderStyle = System.Windows.Forms.DataGridViewCellBorderStyle.None;
+            this.dataGridView1.CellBorderStyle = System.Windows.Forms.DataGridViewCellBorderStyle.SingleVertical;
+            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle1.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dataGridView1.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
             this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGridView1.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.OrderColumn,
             this.NameColumn,
             this.ICCIDColumn,
             this.statusColumn,
+            this.DataUsageColumn,
             this.dueColumn});
             this.dataGridView1.ContextMenuStrip = this.contextMenuAction;
             this.dataGridView1.Location = new System.Drawing.Point(13, 89);
@@ -349,18 +360,17 @@
             // 
             // OrderColumn
             // 
-            this.OrderColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.OrderColumn.FillWeight = 48F;
+            this.OrderColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.OrderColumn.FillWeight = 4F;
             this.OrderColumn.HeaderText = "#";
             this.OrderColumn.MinimumWidth = 6;
             this.OrderColumn.Name = "OrderColumn";
             this.OrderColumn.ReadOnly = true;
-            this.OrderColumn.Width = 43;
             // 
             // NameColumn
             // 
             this.NameColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.NameColumn.FillWeight = 73.52025F;
+            this.NameColumn.FillWeight = 30F;
             this.NameColumn.HeaderText = "Nombre";
             this.NameColumn.MinimumWidth = 6;
             this.NameColumn.Name = "NameColumn";
@@ -370,7 +380,7 @@
             // ICCIDColumn
             // 
             this.ICCIDColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.ICCIDColumn.FillWeight = 73.52025F;
+            this.ICCIDColumn.FillWeight = 20F;
             this.ICCIDColumn.HeaderText = "ICCID";
             this.ICCIDColumn.MinimumWidth = 6;
             this.ICCIDColumn.Name = "ICCIDColumn";
@@ -379,18 +389,27 @@
             // 
             // statusColumn
             // 
-            this.statusColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.statusColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.statusColumn.FillWeight = 10F;
             this.statusColumn.HeaderText = "Estatus";
             this.statusColumn.MinimumWidth = 6;
             this.statusColumn.Name = "statusColumn";
             this.statusColumn.ReadOnly = true;
             this.statusColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-            this.statusColumn.Width = 57;
+            // 
+            // DataUsageColumn
+            // 
+            this.DataUsageColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.DataUsageColumn.FillWeight = 12F;
+            this.DataUsageColumn.HeaderText = "Data Usage";
+            this.DataUsageColumn.MinimumWidth = 6;
+            this.DataUsageColumn.Name = "DataUsageColumn";
+            this.DataUsageColumn.ReadOnly = true;
             // 
             // dueColumn
             // 
             this.dueColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.dueColumn.FillWeight = 73.52025F;
+            this.dueColumn.FillWeight = 20F;
             this.dueColumn.HeaderText = "Fecha de vencimiento";
             this.dueColumn.MinimumWidth = 6;
             this.dueColumn.Name = "dueColumn";
@@ -452,6 +471,7 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn NameColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn ICCIDColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn statusColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn DataUsageColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn dueColumn;
     }
 }
